@@ -1,0 +1,163 @@
+#include<stdio.h>
+
+#include<errno.h>
+
+#include<pthread.h>
+
+#include<semaphore.h>
+
+#include<stdlib.h>
+
+
+
+sem_t sem;
+
+
+
+pthread_t thr[5];
+
+int i;
+
+pthread_mutex_t mtx;
+
+sem_t semafor;
+
+int control;
+
+
+
+void barrier_point(){
+
+	
+
+	pthread_mutex_lock(&mtx);
+
+	control++;
+
+	
+
+	if(control == 5){
+
+		pthread_mutex_unlock(&mtx);
+
+		sem_post(&semafor);
+
+	}
+
+	else
+
+		pthread_mutex_unlock(&mtx);
+
+		
+
+	
+
+	sem_wait(&semafor);
+
+	sem_post(&semafor);
+
+
+
+}
+
+
+
+void * tfun ( void * v ){
+
+	int * tid = ( int *) v ;
+
+	
+
+	printf ("% d reached the barrier \n " , *tid );
+
+	
+
+	barrier_point (*tid);
+
+	printf ("% d passed the barrier \n " , *tid );
+
+
+
+	return NULL ;
+
+}
+
+
+
+int main(){
+
+
+
+	if ( pthread_mutex_init (& mtx , NULL )) {
+
+		perror ( NULL );
+
+		return errno ;
+
+	}
+
+	
+
+	if ( sem_init (& semafor , 0 , 0)) {
+
+		perror ( NULL );
+
+		return errno ;
+
+	}
+
+
+
+	
+
+	
+
+
+
+	for(i = 0; i<5; i++){
+
+		
+
+		int * j = malloc(sizeof(int));
+
+		*j = i;
+
+		
+
+		if(pthread_create(&thr[i], NULL, tfun, j)){
+
+			perror(NULL);
+
+			return errno;
+
+		}
+
+	}
+
+	
+
+	for(i = 0; i<5; i++){
+
+
+
+	
+
+		if ( pthread_join ( thr[i] , NULL)) {
+
+			perror ( NULL );
+
+			return errno ;
+
+		}
+
+	
+
+	
+
+	}
+
+	
+
+
+
+}

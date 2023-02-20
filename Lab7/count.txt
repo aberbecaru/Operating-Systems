@@ -1,0 +1,160 @@
+#include<stdio.h> 
+
+#include<pthread.h>
+
+#include<errno.h>
+
+#include<stdlib.h>
+
+# define MAX_RESOURCES 10
+
+int available_resources = MAX_RESOURCES ;
+
+pthread_mutex_t mtx;
+
+pthread_t *thr;
+
+int x;
+
+
+
+int decrease_count ( int count )
+
+{
+
+
+
+	pthread_mutex_lock(&mtx);	
+
+	
+
+	if ( available_resources < count ){
+
+		printf("Not enough resources. Got : %d, Remaining Resources: %d\n", count, available_resources);
+
+		pthread_mutex_unlock(& mtx);
+
+		return -1;
+
+	}
+
+	else{
+
+		available_resources -= count ;
+
+	
+
+		printf("Got %d resources %d remaining", count, available_resources);
+
+		printf("\n");
+
+		pthread_mutex_unlock(& mtx);
+
+	}
+
+	return 0;
+
+}
+
+
+
+int increase_count ( int count )
+
+{
+
+	pthread_mutex_lock(&mtx);
+
+	available_resources += count ;
+
+	printf("Released %d resources %d remaining", count, available_resources);
+
+	printf("\n");
+
+	pthread_mutex_unlock(& mtx);
+
+	return 0;
+
+}
+
+
+
+void* resurse(void* v){
+
+    int* argument = (int*) v;
+
+    int count = *argument;
+
+    if(!decrease_count(count)){
+
+        increase_count(count);
+
+     }
+
+    
+
+    return NULL;
+
+}
+
+
+
+int main(){
+
+
+
+	thr = (pthread_t*) malloc(MAX_RESOURCES * sizeof(pthread_t));
+
+
+
+	if(pthread_mutex_init(&mtx, NULL)){
+
+		perror(NULL);
+
+		return errno;
+
+	}
+
+	
+
+	for(int i = 0; i < 10; i++){
+
+		int* t;
+
+		t = (int*) malloc(sizeof(int));
+
+		*t = i;
+
+		 if(pthread_create(&thr[i], NULL, resurse, t)){
+
+			 perror(NULL);
+
+			 return errno;
+
+		 }
+
+   	 }
+
+
+
+	for(int i = 0; i < 10; i++){
+
+		if(pthread_join(thr[i], NULL)){
+
+			  perror(NULL);
+
+			  return errno;
+
+		}
+
+        }
+
+        
+
+
+
+        
+
+}	
+
+
+
