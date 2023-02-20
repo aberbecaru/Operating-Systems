@@ -1,0 +1,89 @@
+#include<unistd.h>
+
+#include<stdio.h>
+
+#include<pthread.h>
+
+#include<string.h>
+
+#include<errno.h>
+
+#include<stdlib.h>
+
+
+
+int i;
+
+int k = -1;
+
+
+
+
+
+void * reverse ( void * v){
+
+	
+
+	char * who = ( char *) v ;
+
+	char aux[101];
+
+	
+
+	for(i=0; i<strlen(who); i++){
+
+		char c;
+
+		c = who[strlen(who)-i-1];
+
+		aux[i] = c;
+
+	}
+
+	
+
+	strcpy(who, aux);
+
+	
+
+	return who;		
+
+	
+
+}
+
+
+
+int main(int argc, char* argv[]){
+
+	pthread_t thr ;
+
+	if ( pthread_create (& thr , NULL , reverse, argv[1])) {
+
+		perror ( NULL );
+
+		return errno ;
+
+	}
+
+	
+
+	char *result;
+
+	
+
+	if ( pthread_join ( thr , &result)) {
+
+		perror ( NULL );
+
+		return errno ;
+
+	}
+
+	
+
+	printf("%s", result);
+
+
+
+}	
