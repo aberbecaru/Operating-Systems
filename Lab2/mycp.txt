@@ -1,28 +1,62 @@
 #include<unistd.h>
 
+
+
 #include<stdio.h>
+
+
 
 #include<stdlib.h>
 
+
+
 #include<fcntl.h>
+
+
 
 #include<errno.h>
 
+
+
 int main(int argc, char* argv[]){
+
+
 
 int f1, f2;
 
-char buffer[2048];
+
+
+char buffer[4096];
+
+
+
+size_t citire;
+
+
+
+
 
 
 
 if(argc < 3){
 
+
+
 	perror("Prea putine argumente");
+
+
 
 	return errno;
 
+
+
 }
+
+
+
+
+
+
 
 
 
@@ -30,36 +64,70 @@ if(argc < 3){
 
 f1 = open(argv[1], O_RDONLY);
 
+
+
 if(f1 == -1){
+
+
 
 	perror("Primul fisier nu s-a deschis");
 
+
+
 	return errno;
+
+
 
 }
 
+
+
 	
 
-f2 = open(argv[2], O_WRONLY);
+
+
+f2 = open(argv[2], O_WRONLY | O_CREAT, 0666);
+
+
 
 if(f2 == -1){
 
+
+
 	perror("Al doilea fisier nu s-a deschis");
 
+
+
 	return errno;
+
+
 
 }
 
 
 
-while(read(f1, &buffer, 1) != 0)
 
-	write(f2, &buffer, 1);
+
+
+
+while(citire = read(f1, buffer, sizeof(buffer)))
+
+
+
+	write(f2, &buffer, citire);
+
+
 
 	
+
+
+
+
 
 
 
 return 0;
+
+
 
 }
